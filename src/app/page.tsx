@@ -26,7 +26,7 @@ export default async function Home(){
 
   if(session ){
     return (
-      <main className="min-h-screen bg-white text-slate-900 font-sans">
+      <main className="h-svh bg-white text-slate-900 font-sans">
         <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
         <nav className="sticky top-0 z-50 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200">
           <div className="flex gap-4 items-center">
@@ -52,7 +52,7 @@ export default async function Home(){
         </nav>
 
         <div className="relative z-10 container mx-auto py-16 px-6 max-w-4xl text-center">
-          <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-[0.9]">
+          <h1 className="text-6xl md:text-7xl max-[450px]:text-5xl font-black text-slate-900 tracking-tight leading-[0.9]">
             Learn Pytnon <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
               Jenga Architect
@@ -65,7 +65,7 @@ export default async function Home(){
   }
   return (
 
-    <main className="min-h-screen bg-[#F8FAFC] font-sans overflow-hidden">
+    <main className="h-svh bg-[#F8FAFC] font-sans overflow-hidden">
       {/* Subtle grid background - feels like an architect's desk */}
       <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]" />
 
@@ -83,9 +83,9 @@ export default async function Home(){
         <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 font-bold text-xs uppercase tracking-widest mb-6">
           Beta Access Available
         </span>
-        <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-[0.9]">
+        <h1 className="text-6xl md:text-7xl max-[450px]:text-5xl font-black text-slate-900 tracking-tight leading-[0.9]">
           Build Python <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Architectures.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Architecture</span>
         </h1>
         <p className="mt-6 text-slate-500 max-w-lg mx-auto text-lg">
           Master <span className="font-bold text-slate-800">OOP principles</span> through structural logic. The interactive way to learn Python.

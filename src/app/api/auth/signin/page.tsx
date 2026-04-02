@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function SignInPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white text-white">
+    <div className="flex flex-col items-center justify-center h-svh bg-white text-white">
     <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]" />
       <div className="p-8 z-[1000] bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl shadow-lg flex flex-col gap-4">
         <h2 className="text-xl font-bold mb-4 text-center">Login to Jenga Architect</h2>
