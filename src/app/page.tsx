@@ -65,7 +65,7 @@ export default async function Home(){
   }
   return (
 
-    <main className="h-svh bg-[#F8FAFC] font-sans overflow-hidden">
+    <main className="min-h-screen bg-[#F8FAFC] font-sans overflow-hidden">
       {/* Subtle grid background - feels like an architect's desk */}
       <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]" />
 
