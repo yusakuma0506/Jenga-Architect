@@ -3,6 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   validate-and-deploy:
@@ -11,12 +13,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # CI Step: This runs your Dockerfile automatically
-      - name: Build Docker Check
-        run: docker build -t jenga-check .
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-      # CD Step: Push to Vercel
+      - name: Install Dependencies
+        run: npm ci
+
+      # --- QUALITY GATES ---
+      - name: Check Types (TypeScript)
+        run: npm run build # Next.js build checks types and linting automatically
+
+      # --- DEPLOYMENT ---
       - name: Deploy to Vercel
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
