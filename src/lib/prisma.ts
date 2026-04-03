@@ -20,17 +20,6 @@ const prismaClientSingleton = () => {
   });
 };
 
-// declare const globalThis: {
-//   prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
-// } & typeof global;
-
-// export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
-
-// if (process.env.NODE_ENV !== 'production') {
-//   globalThis.prismaGlobal = prisma;
-// }
-
-// ✅ FIX: Use 'declare global' instead of 'declare const globalThis'
 declare global {
   var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
 }

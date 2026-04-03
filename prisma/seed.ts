@@ -1,7 +1,7 @@
 // 1. THIS MUST BE THE VERY FIRST LINE
 process.env.DATABASE_URL = "postgresql://postgres.nfgumsmurnsmaxhxqwml:jengaPass2026@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres";
 
-import { PrismaClient, Level, Role } from '../src/generated/prisma';
+import { PrismaClient, Level, Role } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
