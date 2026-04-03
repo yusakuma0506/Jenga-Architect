@@ -10,10 +10,12 @@ export default function FeedbackTrigger({isAdmin , onOpen} :SettingActionsProps)
     if(isAdmin){
         return(
             <Link 
-                href = "/admin?tab=feedback" 
-                className="text-amber-500 hover:text-amber-300 text-xs uppercase transition-colors p-1 cursor-pointer"
+                href = "/feedback" 
+                className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group w-full"
             >
-                {">"} View Report
+                <span className="text-indigo-400 group-hover:scale-110 transition-transform">💬</span>
+                Feedback
+                
             </Link>
         );
     }
