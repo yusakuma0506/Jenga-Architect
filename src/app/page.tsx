@@ -1,8 +1,9 @@
 import {getServerSession} from "next-auth";
 import {authOptions} from "./api/auth/[...nextauth]/route"
-import HamburgerMenu from "@/components/menu/HamburgerMenu";
 import Image from "next/image";
 import {prisma} from "../lib/prisma";
+import Nav from "@/components/nav";
+import Link from "next/link";
 
 export default async function Home(){
   const session = await getServerSession(authOptions);
@@ -13,43 +14,13 @@ export default async function Home(){
     select: {id:true, email:true, image:true, name:true, isPro: true, role:true}
   }):null;
 
-  const userImage = dbUser?.image || session?.user?.image || "/default_photo.jpg";
-  const userName = dbUser?.name ||session?.user?.name || "Unknown";
-  const isPro = dbUser?.isPro || session?.user?.isPro || false;
 
-
-  const planLabel = isPro ? "Pro Plan": "Free Plan";
-
-  const planStyles = isPro 
-  ? "bg-amber-50 text-amber-700 border-amber-200 shadow-sm" 
-  : "bg-slate-100 text-slate-600 border-slate-200 shadow-sm";
-
-  if(session ){
+  if(session && dbUser ){
     return (
       <main className="h-svh bg-white text-slate-900 font-sans">
         <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
-        <nav className="sticky top-0 z-50 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200">
-          <div className="flex gap-4 items-center">
-            <div className="relative w-12 h-12 border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden p-0.5">
-              <div className="relative w-full h-full rounded-[10px] overflow-hidden">
-                <Image src={userImage} alt="Profile" fill className="object-cover" />
-              </div>
-            </div>
-            
-            <div className="flex flex-col">
-              <span className="text-slate-900 font-bold text-sm tracking-tight leading-tight">
-                {userName}
-              </span>
-              <span className={`mt-1 text-[10px] font-bold px-2 py-0.5 border rounded-full w-fit ${planStyles}`}>
-                {planLabel.toUpperCase()}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 font-mono">
-            <HamburgerMenu user={dbUser || session.user}/>
-          </div>
-        </nav>
+        
+        <Nav  user={dbUser} />
 
         <div className="relative z-10 container mx-auto py-16 px-6 max-w-4xl text-center">
           <h1 className="text-6xl md:text-7xl max-[450px]:text-5xl font-black text-slate-900 tracking-tight leading-[0.9]">
@@ -74,9 +45,9 @@ export default async function Home(){
           <span className="bg-blue-600 text-white px-2 py-1 rounded-lg">J</span>
           <span className="text-slate-900">Jenga Architect</span>
         </div>
-        <a href="/api/auth/signin" className="px-6 py-2.5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 transition-all active:scale-95">
+        <Link href="/api/auth/signin" className="px-6 py-2.5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 transition-all active:scale-95">
           Login
-        </a>
+        </Link>
       </nav>
 
       <div className="relative z-10 container mx-auto pt-20 px-6 text-center">
@@ -127,9 +98,9 @@ export default async function Home(){
 
         {/* CTA Button */}
         <div className="my-20">
-          <a href="/api/auth/signin" className="px-12 py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 transition-all">
+          <Link href="/api/auth/signin" className="px-12 py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 transition-all">
             START BUILDING NOW
-          </a>
+          </Link>
         </div>
       </div>
     </main>

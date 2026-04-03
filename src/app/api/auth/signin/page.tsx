@@ -10,7 +10,7 @@ export default function SignInPage() {
         <h2 className="text-xl font-bold mb-4 text-center">Login to Jenga Architect</h2>
         <button 
           onClick={() => signIn("google", { callbackUrl: "/" })}
-          className="bg-white text-black p-3 rounded font-bold w-64 flex items-center hover:bg-gray-300"
+          className="bg-white text-black p-3 rounded font-bold w-64 flex items-center hover:bg-gray-300 active:scale-95"
         >
             <Image src="/google.png" alt="google icon" width={24} height ={24} className="mx-2 mr-4"/>
             Sign in with Google
@@ -18,7 +18,7 @@ export default function SignInPage() {
         </button>
         <button 
           onClick={() => signIn("github", { callbackUrl: "/" })}
-          className="bg-gray-500 text-white p-3 rounded font-bold w-64 flex items-center hover:bg-gray-600"
+          className="bg-gray-500 text-white p-3 rounded font-bold w-64 flex items-center hover:bg-gray-600 active:scale-95"
         >
             <Image src="/github.png" alt="github icon" width={24} height ={24} className="mx-2 mr-4"/>
 

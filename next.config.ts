@@ -8,9 +8,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'tocj9khrsygrem4u.public.blob.vercel-storage.com',
-        port: '',
-        pathname: '/**',
+        hostname: 'lh3.googleusercontent.com', // Google
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com', // GitHub
+      },
+      {
+        protocol: 'https',
+        hostname: '**.public.blob.vercel-storage.com', // Vercel Blob
       },
     ],
   },

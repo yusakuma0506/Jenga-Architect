@@ -12,6 +12,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
   if (!isOpen) return null;
   
   return createPortal(
+    
     <div className="fixed overflow-hidden inset-0 z-[9999] flex items-center justify-center p-4 h-svh w-screen bg-white">
       <div 
         className="fixed  inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" 
@@ -25,7 +26,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
             <button onClick={onClose} className="text-indigo-500 hover:text-gray-200 transition-colors">✕</button>
         </div>
 
-        <div className="p-6 max-h-[80vh] bg-white overflow-y-auto">
+        <div className="p-6 max-h-[80vh] bg-white overflow-y-auto rounded-xl">
         {children}
         </div>
         

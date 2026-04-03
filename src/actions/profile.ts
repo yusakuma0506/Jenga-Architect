@@ -33,12 +33,13 @@ export async function updatePhoto(userId:string, newPhoto:string){
 }
 
 export async function deleteUserAccount(userId: string){
-    try{
+    try {
         await prisma.user.delete({
-            where: {id:userId}
+            where: { id: userId }
         });
-        redirect("/")
-    }catch(error){
-        return {error: "Could not delete account"};
+        return { success: true }; 
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: "Could not delete account" };
     }
 }

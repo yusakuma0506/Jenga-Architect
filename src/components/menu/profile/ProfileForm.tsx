@@ -3,7 +3,7 @@ import {useState, useRef} from 'react';
 import { updateUsername } from '@/actions/profile';
 import Image from "next/image";
 import { updatePhoto } from '@/actions/profile';
-import DeleteButton from './DeleteButton';
+import DeleteButton from './delete/DeleteButton';
 import { useSession } from "next-auth/react";
 import {useRouter} from 'next/navigation';
 import {uploadToCloud} from "@/actions/upload";
@@ -16,6 +16,7 @@ interface User{
     role:string;
     isPro : boolean;
 };
+
 
 export default function ProfileForm({user}: {user:User}){
     const {update} = useSession();
@@ -70,7 +71,7 @@ export default function ProfileForm({user}: {user:User}){
             <div className="flex flex-col items-center gap-2">
                 <div 
                     onClick={handleImageClick}
-                    className="rounded-xl shadow-sm p-0.5 relative w-20 h-20  border-2 border-indigo-300 overflow-hidden cursor-pointer hover:border-indigo-400 transition-all group bg-white"
+                    className="rounded-xl shadow-sm p-0.5 relative w-20 h-20  border-2 border-blue-300 overflow-hidden cursor-pointer hover:border-blue-400 transition-all group bg-white"
                 >
                     <Image
                     src={img} 
@@ -112,26 +113,28 @@ export default function ProfileForm({user}: {user:User}){
                 <input 
                     value={name} 
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-slate-200 border border-indigo-900/50 p-2 text-black outline-none focus:border-indigo-400"
+                    className="bg-slate-200 border border-blue-900/50 p-2 text-black outline-none focus:border-blue-400"
                 />
                 </div>
                 
                 <button type="submit" disabled={validation} 
-                className={`w-full h-12 border ${ validation? "border-gray-500 text-gray-500" :"border-indigo-500 text-indigo-500 p-2 hover:bg-indigo-500/10"}`}>
+                className={`w-full h-12 border ${ validation? "border-gray-500 text-gray-500" :"border-blue-500 text-blue-500 p-2 hover:bg-blue-500/10"}`}>
                 Save Name
                 </button>
             </form>}
 
 
 
-            <div className="mt-4 p-3 border-t text-black border-indigo-900/20 text-[10px] space-y-1 ">
-                <p>ID: {user.id}</p>
+            <div className="mt-4 p-3 border-t text-black border-blue-900/20 text-sm space-y-1 ">
+                {/* <p>ID: {user.id}</p> */}
                 <p>EMAIL: {user.email}</p>
-                <p>STATUS: {user.isPro ? "PRO" : "FREE"}</p>
+                <p>STATUS: {user.isPro ? "PRO PLAN" : "FREE PLAN"}</p>
             </div>
 
-                {/* 4. Delete Section */}
-                <DeleteButton id={user.id} />
+            
+            {user.role !== "ADMIN" && (
+                <DeleteButton userId={user.id} />
+            )}
         </div>
        
     )
