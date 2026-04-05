@@ -22,7 +22,7 @@ export default async function Home(){
         <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
         
         <Nav  user={dbUser} />
-        <LobbyClient user={dbUser}/>
+        <LobbyClient/>
 
       </main>
 
