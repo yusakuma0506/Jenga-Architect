@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import {prisma} from '../lib/prisma';
 import { FeedbackType } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { AuthOptions } from 'next-auth';
+import {revalidatePath} from 'next/cache';
 
 
 
@@ -34,4 +34,17 @@ export async function createNewFeedback(formData: FormData){
     }
 
 
+}
+
+export async function feedbackReadUpdate(feedbackId: string){
+    try{
+        await prisma.feedback.update({
+            where:{id: feedbackId },
+            data:{read: true }
+        })
+        revalidatePath("/feedback")
+        return{success: true}
+    }catch(error){
+        return{success: false}
+    }
 }

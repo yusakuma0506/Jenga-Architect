@@ -1,10 +1,8 @@
 'use client';
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import {useRouter} from "next/navigation";
 
 export default function SecretLoginPage() {
-    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -25,8 +23,7 @@ export default function SecretLoginPage() {
         if(result?.error){
             setError("Email or Password is Incorrect")
         }else{
-            router.push('/');
-            router.refresh()
+            window.location.href = "/"
         }
 
     };
@@ -49,6 +46,7 @@ export default function SecretLoginPage() {
                 <input 
                     type="password" 
                     placeholder="Password" 
+                    suppressHydrationWarning
                     className="bg-slate-900 rounded-md border border-blue-800 p-2 outline-none focus:border-blue-300"
                     onChange={(e) => setPassword(e.target.value)}
                 />

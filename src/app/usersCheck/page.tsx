@@ -2,14 +2,11 @@ import Nav from "@/components/Nav";
 import { getServerSession } from "next-auth";
 import  {authOptions} from "../api/auth/[...nextauth]/route";
 import {prisma} from "../../lib/prisma";
-import FeedbackSearch from "../../components/menu/feedback/FeedbackSearch"
-import { Feedback, User } from "@prisma/client";
+import Users from "@/components/menu/Users";
 
-export interface FeedbackWithUser extends Feedback {
-  user: Pick<User, "email"> | null;
-}
 
-export default async function FeedbackAdmin() {
+
+export default async function UsersCheck() {
   const session = await getServerSession(authOptions);
   
   const dbUser = session?.user?.id 
@@ -18,16 +15,13 @@ export default async function FeedbackAdmin() {
     select: {id:true, email:true, image:true, name:true, isPro: true, role:true}
   }):null;
 
-  const allFeedbacks = await prisma.feedback.findMany({
-    include:{user: true}
-  })
+  const allUsers = await prisma.user.findMany()
 
-  if(session && dbUser.role ==="ADMIN"){
+  if(session && dbUser.role ==="ADMIN" ){
     return (
       <div className="font-sans">
         <Nav user ={dbUser} />
-        <FeedbackSearch initialData={allFeedbacks}/>
-
+        <Users allUsers = {allUsers}/>
         
       </div>
     );

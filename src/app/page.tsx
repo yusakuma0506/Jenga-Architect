@@ -2,8 +2,9 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "./api/auth/[...nextauth]/route"
 import Image from "next/image";
 import {prisma} from "../lib/prisma";
-import Nav from "@/components/nav";
+import Nav from "../components/Nav";
 import Link from "next/link";
+import LobbyClient from "@/components/LobbyClient";
 
 export default async function Home(){
   const session = await getServerSession(authOptions);
@@ -21,15 +22,8 @@ export default async function Home(){
         <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
         
         <Nav  user={dbUser} />
+        <LobbyClient user={dbUser}/>
 
-        <div className="relative z-10 container mx-auto py-16 px-6 max-w-4xl text-center">
-          <h1 className="text-6xl md:text-7xl max-[450px]:text-5xl font-black text-slate-900 tracking-tight leading-[0.9]">
-            Learn Pytnon <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
-              Jenga Architect
-            </span>
-          </h1>
-        </div>
       </main>
 
     );
@@ -37,7 +31,6 @@ export default async function Home(){
   return (
 
     <main className="min-h-screen bg-[#F8FAFC] font-sans overflow-hidden">
-      {/* Subtle grid background - feels like an architect's desk */}
       <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]" />
 
       <nav className="stikey top-0 z-50 p-6 flex justify-between items-center max-w-full mx-auto bg-white/70 backdrop-blur-md border-b border-slate-200">
@@ -51,9 +44,7 @@ export default async function Home(){
       </nav>
 
       <div className="relative z-10 container mx-auto pt-20 px-6 text-center">
-        <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 font-bold text-xs uppercase tracking-widest mb-6">
-          Beta Access Available
-        </span>
+
         <h1 className="text-6xl md:text-7xl max-[450px]:text-5xl font-black text-slate-900 tracking-tight leading-[0.9]">
           Build Python <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">Architecture</span>
@@ -62,10 +53,8 @@ export default async function Home(){
           Master <span className="font-bold text-slate-800">OOP principles</span> through structural logic. The interactive way to learn Python.
         </p>
 
-        {/* Feature Cards */}
         <div className="flex flex-wrap justify-center gap-10 mt-20">
           
-          {/* Solo Play Card */}
           <div className="group w-full max-w-[360px] bg-white border border-slate-200 p-2 rounded-[32px] hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 transition-all duration-500">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
@@ -80,7 +69,6 @@ export default async function Home(){
             </div>
           </div>
 
-          {/* Multi Play Card */}
           <div className="group w-full max-w-[360px] bg-white border border-slate-200 p-2 rounded-[32px] hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">

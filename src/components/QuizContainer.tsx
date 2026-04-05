@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 import QuizEngine from './QuizEngine';
+import { Quiz } from '@prisma/client';
 
-export default function QuizContainer({ quizzes }: { quizzes: any[] }) {
+export default function QuizContainer({ quizzes }: { quizzes: Quiz[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleNext = () => {
@@ -11,7 +12,6 @@ export default function QuizContainer({ quizzes }: { quizzes: any[] }) {
 
   return (
     <div>
-      {/* 自分(QuizContainer)ではなく、QuizEngineを呼ぶ！ */}
       <QuizEngine 
         key={quizzes[currentIndex].id} 
         quiz={quizzes[currentIndex]} 

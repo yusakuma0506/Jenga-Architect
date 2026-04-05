@@ -48,22 +48,20 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials){
-                const email = credentials?.email;
-                const password = credentials?.password
+                if(credentials?.password !== process.env.DEMO_PASSWORD) return null;
+                const user = await prisma.user.findUnique({
+                where: { email: credentials?.email }
+                });
 
-                if(password !== process.env.DEMO_PASSWORD){
-                    return null;
-                }
-                if (email === process.env.ADMIN_EMAIL) {
-                    return { id: "admin", name: "Admin User", email: credentials.email, role: "ADMIN", isPro: true };
-                }
-                if (email === process.env.SAMPLE_EMAIL_PRO) {
-                    return { id: "pro-user", name: "Pro Sample", email: credentials.email, role: "NORMAL", isPro: true };
-                }
-                if (email === process.env.SAMPLE_EMAIL_FREE) {
-                    return { id: "free-user", name: "Free Sample", email: credentials.email, role: "NORMAL", isPro: false };
-                }
-                return null;
+                if (!user) return null;
+
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isPro: user.isPro
+                };
                 
             }
         })
@@ -80,7 +78,7 @@ export const authOptions: NextAuthOptions = {
             if(trigger === "update" && session){
                 if(session.name) token.name = session.name;
                 if(session.image) token.picture =session.image;
-                if(session.isPro ! == undefined) token.isPro = session.isPro
+                if(session.isPro !== undefined) token.isPro = session.isPro
             }
 
             return token
