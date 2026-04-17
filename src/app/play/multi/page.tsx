@@ -1,50 +1,93 @@
+'use client'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-import {getServerSession} from "next-auth";
-import {authOptions} from  "../../api/auth/[...nextauth]/route" 
-import {prisma} from "../../../lib/prisma";
-import Link from "next/link";
-import Image from "next/image";
+export default function MultiplayPortal() {
+    const router = useRouter();
+    const [joinCode, setJoinCode] = useState("");
+    const [loading, setLoading] = useState(false);
 
+    // 1. HOST LOGIC: Create a room and redirect
+    const handleHost = async (level: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/rooms/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ level })
+            });
+            const data = await res.json();
+            
+            // Save room code so the scanner knows which room we belong to
+            sessionStorage.setItem('activeRoomCode', data.joinCode);
+            router.push(`/multi/${data.joinCode}`);
+        } catch (error) {
+            console.error("Host error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-export default async function Home(){
-  const session = await getServerSession(authOptions);
+    // 2. JOIN LOGIC: Join existing room
+    const handleJoin = () => {
+        if (joinCode.length === 6) {
+            const code = joinCode.toUpperCase();
+            sessionStorage.setItem('activeRoomCode', code);
+            router.push(`/multi/${code}`);
+        }
+    };
 
-  const dbUser = session?.user?.id 
-    ? await prisma.user.findUnique ({
-    where:{id: session.user.id},
-    select: {id:true, email:true, image:true, name:true, isPro: true, role:true}
-  }):null;
-
-
-  if(session && dbUser ){
     return (
-      <main className="h-svh bg-white text-slate-900 font-sans">
-        <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
-        <div className="sticky top-0 z-50 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200">
-                <Link href="/" className="relative block p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <Image
-                    src="/back_arrow.svg"
-                    alt="back"
-                    width={32} 
-                    height={32}
+        <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-white border-[4px] border-slate-900 rounded-[40px] p-8 shadow-[12px_12px_0_0_#0f172a]">
+                
+                {/* --- HOST SECTION --- */}
+                <section className="mb-10">
+                    <h2 className="text-2xl font-black text-slate-900 mb-4 flex items-center gap-2">
+                        <span>🏗️</span> HOST A ROOM
+                    </h2>
+                    <p className="text-slate-500 text-sm mb-4">Pick a level to start a new Jenga session.</p>
+                    
+                    <div className="grid grid-cols-1 gap-3">
+                        {['ENTRY', 'JUNIOR', 'SENIOR'].map((lvl) => (
+                            <button
+                                key={lvl}
+                                onClick={() => handleHost(lvl)}
+                                disabled={loading}
+                                className="py-4 bg-white border-2 border-slate-200 rounded-2xl font-black text-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {lvl}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                <div className="border-t-2 border-dashed border-slate-200 mb-10 relative">
+                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 font-black text-slate-300">OR</span>
+                </div>
+
+                {/* --- JOIN SECTION --- */}
+                <section>
+                    <h2 className="text-2xl font-black text-slate-900 mb-4 flex items-center gap-2">
+                        <span>🔑</span> JOIN A ROOM
+                    </h2>
+                    <input 
+                        type="text"
+                        placeholder="ENTER 6-DIGIT CODE"
+                        value={joinCode}
+                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                        maxLength={6}
+                        className="w-full p-4 mb-4 border-4 border-slate-900 rounded-2xl text-center font-mono text-2xl font-black tracking-widest focus:outline-none focus:ring-4 ring-blue-500/20"
                     />
-                </Link>
-                <h1 className="font-bold text-2xl">Multiplay</h1>
-        </div>
-        
-      </main>
-
+                    <button 
+                        onClick={handleJoin}
+                        disabled={joinCode.length !== 6}
+                        className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-[4px_4px_0_0_#3b82f6] hover:bg-slate-800 active:translate-y-1 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                    >
+                        JOIN GAME
+                    </button>
+                </section>
+            </div>
+        </main>
     );
-  }
-  return (
-
-    <main className="h-svh bg-white text-slate-900 font-sans">
-        <div className="fixed inset-0 opacity-40 pointer-events-none bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:40px_40px]"/>
-        <div className="flex flex-col h-svh w-full justify-center items-center mx-auto">
-          <h1>This page is for Logedin Users</h1>
-        </div>
-    </main>
-    
-  );
-
 }

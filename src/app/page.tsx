@@ -4,7 +4,7 @@ import Image from "next/image";
 import {prisma} from "../lib/prisma";
 import Nav from "../components/Nav";
 import Link from "next/link";
-import LobbyClient from "@/components/LobbyClient";
+import LobbyClient from "@/components/HomeMenu";
 
 export default async function Home(){
   const session = await getServerSession(authOptions);

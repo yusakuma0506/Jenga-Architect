@@ -55,12 +55,13 @@ model Room {
   id           String            @id @default(cuid())
   joinCode     String            @unique
   status       RoomStatus        @default(WAITING)
+  level        Level             
   maxPlayers   Int               @default(6)
-  quizId       String
+  quizId       String?
   ownerId      String
   createdAt    DateTime          @default(now())
   owner        User              @relation("RoomOwner", fields: [ownerId], references: [id])
-  quiz         Quiz              @relation(fields: [quizId], references: [id])
+  quiz         Quiz?             @relation(fields: [quizId], references: [id])
   participants RoomParticipant[]
 }
 

@@ -116,9 +116,19 @@ export default function HamburgerMenu ({user}: UserProps){
                         </div>
 
                        
+                       <Link 
+                            href="/print-qr" 
+                            onClick={close} 
+                            className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group"
+                        >
+                            <span className="text-indigo-400 group-hover:scale-110 transition-transform">🖨️</span>
+                            PRINT QRs
+                        </Link> 
+
                         <div className="my-2 border-t border-slate-100" />
 
                         <div className="flex flex-col gap-1">
+                            
                             <button 
                                 onClick={() => {
                                     signOut({callbackUrl:"/"});

@@ -1,9 +1,13 @@
 'use client';
 
 import Link from "next/link";
+import { useState } from 'react';
+import Modal from '@/components/ui/Modal';
+import MultiplaySelector from '@/components/MultiplaySelector';
 
 
 export default function LobbyClient(){
+  const [isMultiOpen, setIsMultiOpen] = useState(false);
   return (
     <div>
       <div className="relative z-10 container mt-10 mx-auto py-16 px-6 max-w-4xl text-center">
@@ -24,14 +28,24 @@ export default function LobbyClient(){
             </span>
           </Link>
 
-          <Link
-          href ="/play/multi"
-          className="group text-center relative w-72 py-5 bg-orange-400 border-[3px] border-slate-900 rounded-xl transition-all duration-75 active:translate-y-1 active:shadow-none shadow-[0_8px_0_0_#0f172a] hover:bg-orange-200">
+          <button 
+          className="group text-center relative w-72 py-5 bg-orange-400 border-[3px] border-slate-900 rounded-xl transition-all duration-75 active:translate-y-1 active:shadow-none shadow-[0_8px_0_0_#0f172a] hover:bg-orange-200"
+          onClick={() => setIsMultiOpen(true)}>
             <span className="text-4xl font-black text-slate-900 uppercase tracking-tighter text-slate-700">
-              👥 Multi
+                👥 Multi
             </span>
-          </Link>
+          </button>
+          
         </div>
+
+
+        <Modal 
+          isOpen={isMultiOpen} 
+          onClose={() => setIsMultiOpen(false)} 
+          title="MULTIPLAYER"
+        >
+          <MultiplaySelector />
+        </Modal>
     </div>
   );
 
