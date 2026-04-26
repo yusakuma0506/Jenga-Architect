@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function PATCH(req: NextRequest,{ params }: { params: Promise<{ roomCode: string }> }) {
+export async function PATCH(request: NextRequest,{ params }: { params: Promise<{ roomCode: string }> }) {
     const session = await getServerSession(authOptions);
     const { roomCode } = await params;
 

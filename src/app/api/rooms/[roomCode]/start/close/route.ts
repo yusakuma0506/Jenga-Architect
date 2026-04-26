@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/route"
 
-export async function DELETE(req: Request, { params }: { params:Promise < { roomCode: string } > }) {
+export async function DELETE(request: NextRequest, { params }: { params:Promise < { roomCode: string } > }) {
     const session = await getServerSession(authOptions);
     
     // 2. Await the params to resolve the roomCode
