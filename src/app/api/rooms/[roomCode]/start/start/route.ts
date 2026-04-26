@@ -7,30 +7,20 @@ export async function PATCH(
   request: NextRequest, 
   context: { params: Promise<{ roomCode: string }> }
 ) {
-    const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
+  const { roomCode } = await context.params; // Correctly awaited
 
-    // Await the params from the context
-    const { roomCode } = await context.params;
+  try {
+    const room = await prisma.room.findUnique({ where: { joinCode: roomCode } });
+    if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
+    if (room.ownerId !== session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
-    try {
-        const room = await prisma.room.findUnique({
-        where: { joinCode: roomCode },
-        });
-
-        if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
-        
-        if (room.ownerId !== session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-        }
-
-        const updatedRoom = await prisma.room.update({
-        where: { joinCode: roomCode },
-        data: { status: 'PLAYING' }, 
-        });
-
-        return NextResponse.json(updatedRoom);
-    } catch (error) {
-        console.error("PATCH error:", error);
-        return NextResponse.json({ error: "Failed to start" }, { status: 500 });
-    }
+    const updatedRoom = await prisma.room.update({
+      where: { joinCode: roomCode },
+      data: { status: 'PLAYING' }, 
+    });
+    return NextResponse.json(updatedRoom);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to start" }, { status: 500 });
+  }
 }
