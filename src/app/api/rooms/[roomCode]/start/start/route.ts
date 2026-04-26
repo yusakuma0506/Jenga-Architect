@@ -3,9 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function PATCH(request: NextRequest,{ params }: { params: Promise<{ roomCode: string }> }) {
+export async function PATCH(
+  request: NextRequest, 
+  context: { params: Promise<{ roomCode: string }> }
+) {
     const session = await getServerSession(authOptions);
-    const { roomCode } = await params;
+
+    // Await the params from the context
+    const { roomCode } = await context.params;
 
     try {
         const room = await prisma.room.findUnique({
@@ -13,6 +18,7 @@ export async function PATCH(request: NextRequest,{ params }: { params: Promise<{
         });
 
         if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
+        
         if (room.ownerId !== session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
@@ -24,6 +30,7 @@ export async function PATCH(request: NextRequest,{ params }: { params: Promise<{
 
         return NextResponse.json(updatedRoom);
     } catch (error) {
+        console.error("PATCH error:", error);
         return NextResponse.json({ error: "Failed to start" }, { status: 500 });
     }
 }
