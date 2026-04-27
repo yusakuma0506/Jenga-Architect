@@ -47,7 +47,7 @@ export default function PrintQRs(){
               </span>
               <div className="relative w-15 h-15">
                 <Image 
-                  src={`/qrs/block_${id}.png`} 
+                  src={`/qrs/BLOCK-${id.toString().padStart(2, '0')}.png`} 
                   alt={`QR Block ${id}`}
                   fill
                   className="object-contain"
