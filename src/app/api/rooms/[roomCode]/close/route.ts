@@ -8,18 +8,23 @@ export async function DELETE(
     context: { params:Promise < { roomCode: string } > }
 ) {
     const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     
-    // 2. Await the params to resolve the roomCode
     const { roomCode } = await context.params;
 
     try {
-        // 3. Only the host can delete the room
-        await prisma.room.deleteMany({
+        const deleted = await prisma.room.deleteMany({
             where: {
                 joinCode: roomCode,
-                ownerId: session?.user?.id 
+                ownerId: session.user.id,
             }
         });
+
+        if (deleted.count === 0) {
+            return NextResponse.json({ error: "Room not found or access denied" }, { status: 404 });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
