@@ -1,10 +1,12 @@
 'use client'
 import { feedbackReadUpdate } from '@/actions/feedback';
 import {useRouter} from 'next/navigation';
+import {useState} from 'react';
 import { FeedbackWithUser } from '@/app/feedback/page';
 
 export default function FeedbackField({feedbacks}:{feedbacks: FeedbackWithUser[]}){
     const router = useRouter();
+    const [isLoad, setIsLoad] = useState<string | null>(null);
 
     if(feedbacks.length ===0){
         return <p className="text-center text-slate-400 py-10">No feedback found.</p>;
@@ -25,13 +27,16 @@ export default function FeedbackField({feedbacks}:{feedbacks: FeedbackWithUser[]
                         <span className="text-xs font-bold text-blue-600">{item.type}</span>
                         {item.read? <span className="text-xs text-slate-400">READ</span> :
                         <button 
-                            className="text-xs text-blue-600 font-bold hover:underline"
+                            disabled={isLoad === item.id}
+                            className="text-xs text-blue-600 font-bold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={async ()=>{
-                                feedbackReadUpdate(item.id, )
+                                setIsLoad(item.id);
+                                await feedbackReadUpdate(item.id, )
                                 router.refresh()
+                                setIsLoad(null);
                              }}
                         >
-                            UNREAD
+                            {isLoad === item.id ? 'MARKING...' : 'UNREAD'}
                         </button>}
                         
                     </div>

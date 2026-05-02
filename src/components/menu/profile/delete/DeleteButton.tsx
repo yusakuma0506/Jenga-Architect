@@ -5,16 +5,22 @@ import DeleteForm from './DeleteForm'; // 後述
 
 export default function DeleteButton({ userId }: { userId: string }) {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isLoad, setIsLoad] = useState(false);
 
     return (
         <div className="mt-2 pt-4 border-t border-rose-100">
             <p className="text-sm text-slate-400 mb-2 font-bold">DANGER ZONE</p>
             <button
-                onClick={() => setIsConfirmOpen(true)}
-                className="w-full py-2 px-2 rounded-xl border-2 border-rose-100 text-rose-500 font-bold hover:bg-rose-50 transition-all flex items-center justify-center gap-2 group"
+                onClick={() => {
+                    setIsLoad(true);
+                    setIsConfirmOpen(true);
+                    setIsLoad(false);
+                }}
+                disabled={isLoad}
+                className="w-full py-2 px-2 rounded-xl border-2 border-rose-100 text-rose-500 font-bold hover:bg-rose-50 transition-all flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
             >
                 <span className="group-hover:animate-bounce">⚠️</span>
-                DELETE ACCOUNT
+                {isLoad ? 'LOADING...' : 'DELETE ACCOUNT'}
             </button>
 
             <Modal 

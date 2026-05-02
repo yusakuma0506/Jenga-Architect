@@ -1,5 +1,4 @@
 'use client';
-import Link from "next/link";
 import {useState} from "react";
 // import AdminActions from "./AdminActions";
 import FeedbackTrigger from "./feedback/FeedbackTrigger";
@@ -10,7 +9,7 @@ import Modal from "../ui/Modal";
 import DeleteForm from "./profile/delete/DeleteForm";
 import FeedbackForm from "./feedback/FeedbackForm";
 import { Role } from "@prisma/client";
-import {useRouter} from "next/navigation";
+import Link from "next/link";
 
 interface UserProps {
 
@@ -30,6 +29,8 @@ type ModelType = "PROFILE" | "FEEDBACK" | "SUBSCRIPTION" | "DELETE" | null;
 export default function HamburgerMenu ({user}: UserProps){
     const [isOpen, setIsOpen] = useState(false);
     const [activeModal, setActiveModal] = useState<ModelType>(null);
+    const [isLoad, setIsLoad] = useState(false);
+    const [linkLoad, setLinkLoad] = useState<string | null>(null);
     const close =()=> {
         setIsOpen(false);
         setActiveModal(null);
@@ -88,19 +89,27 @@ export default function HamburgerMenu ({user}: UserProps){
                             ? <div>
                                 <Link 
                                     href="/" 
-                                    onClick={close} 
-                                    className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group"
+                                    onClick={() => {
+                                        setLinkLoad("HOME");
+                                        close();
+                                    }} 
+                                    aria-disabled={linkLoad !== null || isLoad}
+                                    className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group aria-disabled:pointer-events-none aria-disabled:opacity-60"
                                 >
                                     <span className="text-indigo-400 group-hover:scale-110 transition-transform">🏠</span>
-                                    HOME
+                                    {linkLoad === "HOME" ? "LOADING..." : "HOME"}
                                 </Link> 
                                 <Link 
                                     href="/usersCheck" 
-                                    onClick={close} 
-                                    className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group"
+                                    onClick={() => {
+                                        setLinkLoad("USERS");
+                                        close();
+                                    }} 
+                                    aria-disabled={linkLoad !== null || isLoad}
+                                    className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group aria-disabled:pointer-events-none aria-disabled:opacity-60"
                                 >
                                     <span className="text-indigo-400 group-hover:scale-110 transition-transform">👥</span>
-                                    USERS
+                                    {linkLoad === "USERS" ? "LOADING..." : "USERS"}
                                 </Link> 
                             </div>
                             
@@ -118,11 +127,15 @@ export default function HamburgerMenu ({user}: UserProps){
                        
                        <Link 
                             href="/print-qr" 
-                            onClick={close} 
-                            className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group"
+                            onClick={() => {
+                                setLinkLoad("PRINT");
+                                close();
+                            }} 
+                            aria-disabled={linkLoad !== null || isLoad}
+                            className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group aria-disabled:pointer-events-none aria-disabled:opacity-60"
                         >
                             <span className="text-indigo-400 group-hover:scale-110 transition-transform">🖨️</span>
-                            PRINT QRs
+                            {linkLoad === "PRINT" ? "LOADING..." : "PRINT QRs"}
                         </Link> 
 
                         <div className="my-2 border-t border-slate-100" />
@@ -131,13 +144,14 @@ export default function HamburgerMenu ({user}: UserProps){
                             
                             <button 
                                 onClick={() => {
+                                    setIsLoad(true);
                                     signOut({callbackUrl:"/"});
-                                    
                                 }}
-                                className="flex items-center gap-3 px-3 py-2 text-rose-500 hover:bg-rose-50 rounded-xl text-sm font-bold transition-all text-left"
+                                disabled={isLoad}
+                                className="flex items-center gap-3 px-3 py-2 text-rose-500 hover:bg-rose-50 rounded-xl text-sm font-bold transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <span className="opacity-70">🚪</span>
-                                LOGOUT
+                                <span className="opacity-70">{isLoad ? '⏳' : '🚪'}</span>
+                                {isLoad ? 'LOGGING OUT...' : 'LOGOUT'}
                             </button>
                         </div>
                     </div>

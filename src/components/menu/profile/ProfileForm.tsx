@@ -23,6 +23,7 @@ export default function ProfileForm({user}: {user:User}){
     const router = useRouter();
 
     const [name, setName] = useState(user.name || "")
+    const [isLoad, setIsLoad] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [img, setImg] = useState(user.image  || "/default_photo.jpg")
     const handleImageClick = () =>{
@@ -52,6 +53,7 @@ export default function ProfileForm({user}: {user:User}){
 
     const handleNameSubmit= async(e: React.FormEvent) =>{
         e.preventDefault();
+        setIsLoad(true);
         const result = await updateUsername(user.id, name)
         if(result.success){
             await update({
@@ -61,6 +63,7 @@ export default function ProfileForm({user}: {user:User}){
             router.refresh();
             alert("Change Name")
         }
+        setIsLoad(false);
     };
 
     const validation = name.trim().length<1 || name.length > 20;
@@ -117,9 +120,9 @@ export default function ProfileForm({user}: {user:User}){
                 />
                 </div>
                 
-                <button type="submit" disabled={validation} 
-                className={`w-full h-12 border ${ validation? "border-gray-500 text-gray-500" :"border-blue-500 text-blue-500 p-2 hover:bg-blue-500/10"}`}>
-                Save Name
+                <button type="submit" disabled={validation || isLoad} 
+                className={`w-full h-12 border ${ validation || isLoad ? "border-gray-500 text-gray-500" :"border-blue-500 text-blue-500 p-2 hover:bg-blue-500/10"}`}>
+                {isLoad ? 'SAVING...' : 'Save Name'}
                 </button>
             </form>}
 

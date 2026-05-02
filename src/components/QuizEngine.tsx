@@ -13,6 +13,7 @@ interface QuizProps{
 
 export default function QuizEngine ({quiz, onNext}: QuizProps){
     const [selected, setSelected] = useState<number[]>([]);
+    const [isLoad, setIsLoad] = useState(false);
     const [shuffledOptions, setShuffledOptions] = useState<{id:number, text:string}[]>([]);
 
     useEffect(()=>{
@@ -32,6 +33,7 @@ export default function QuizEngine ({quiz, onNext}: QuizProps){
     }
 
     const checkAnswer =() =>{
+        setIsLoad(true);
         const isCorrect = JSON.stringify(selected) ===JSON.stringify(quiz.answer)
         if(isCorrect){
             alert("Correct");
@@ -39,6 +41,7 @@ export default function QuizEngine ({quiz, onNext}: QuizProps){
         }else{
             alert("Incorrect");
             setSelected([]);
+            setIsLoad(false);
         }
     };
 
@@ -81,10 +84,10 @@ export default function QuizEngine ({quiz, onNext}: QuizProps){
 
       <button
         onClick={checkAnswer}
-        disabled={selected.length !== quiz.options.length}
-        className="mt-8 bg-green-500 text-white py-4 rounded-2xl font-bold text-lg disabled:bg-gray-300 shadow-lg active:translate-y-1 transition-all"
+        disabled={selected.length !== quiz.options.length || isLoad}
+        className="mt-8 bg-green-500 text-white py-4 rounded-2xl font-bold text-lg disabled:bg-gray-300 shadow-lg active:translate-y-1 transition-all disabled:opacity-60"
       >
-        SOLVE
+        {isLoad ? 'CHECKING...' : 'SOLVE'}
       </button>
     </div>
   );

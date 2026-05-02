@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 export default function MultiplayPortal() {
     const router = useRouter();
     const [joinCode, setJoinCode] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [isLoad, setIsLoad] = useState(false);
+    const [isJoinLoad, setIsJoinLoad] = useState(false);
 
     // 1. HOST LOGIC: Create a room and redirect
     const handleHost = async (level: string) => {
-        setLoading(true);
+        setIsLoad(true);
         try {
             const res = await fetch('/api/rooms/create', {
                 method: 'POST',
@@ -20,20 +21,20 @@ export default function MultiplayPortal() {
             
             // Save room code so the scanner knows which room we belong to
             sessionStorage.setItem('activeRoomCode', data.joinCode);
-            router.push(`/multi/${data.joinCode}`);
+            router.push(`/play/multi/${data.joinCode}`);
         } catch (error) {
             console.error("Host error:", error);
-        } finally {
-            setLoading(false);
+            setIsLoad(false);
         }
     };
 
     // 2. JOIN LOGIC: Join existing room
     const handleJoin = () => {
         if (joinCode.length === 6) {
+            setIsJoinLoad(true);
             const code = joinCode.toUpperCase();
             sessionStorage.setItem('activeRoomCode', code);
-            router.push(`/multi/${code}`);
+            router.push(`/play/multi/${code}`);
         }
     };
 
@@ -53,10 +54,10 @@ export default function MultiplayPortal() {
                             <button
                                 key={lvl}
                                 onClick={() => handleHost(lvl)}
-                                disabled={loading}
-                                className="py-4 bg-white border-2 border-slate-200 rounded-2xl font-black text-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 disabled:opacity-50"
+                                disabled={isLoad || isJoinLoad}
+                                className="py-4 bg-white border-2 border-slate-200 rounded-2xl font-black text-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {lvl}
+                                {isLoad ? 'LOADING...' : lvl}
                             </button>
                         ))}
                     </div>
@@ -81,10 +82,10 @@ export default function MultiplayPortal() {
                     />
                     <button 
                         onClick={handleJoin}
-                        disabled={joinCode.length !== 6}
-                        className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-[4px_4px_0_0_#3b82f6] hover:bg-slate-800 active:translate-y-1 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                        disabled={joinCode.length !== 6 || isJoinLoad || isLoad}
+                        className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-[4px_4px_0_0_#3b82f6] hover:bg-slate-800 active:translate-y-1 transition-all disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
                     >
-                        JOIN GAME
+                        {isJoinLoad ? 'JOINING...' : 'JOIN GAME'}
                     </button>
                 </section>
             </div>

@@ -1,6 +1,4 @@
 'use client'
-import Link from "next/link";
-import { Role } from "@prisma/client";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 
@@ -9,14 +7,14 @@ interface User{
     id: string; 
     email: string; 
     image: string; 
-    role: Role; 
     isPro: boolean; 
 }
 
-export default function LevelGrid({user}: {user:User}){
+export default function LevelGrid({}: {user:User}){
     const router = useRouter();
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [questionCount, setQuestionCount] = useState<number>(10);
+    const [isLoad, setIsLoad] = useState(false);
 
     const levels = [
     { 
@@ -50,6 +48,7 @@ export default function LevelGrid({user}: {user:User}){
 
     const handleStartBuild = () => {
         if (selectedLevel) {
+            setIsLoad(true);
             router.push(`/play/solo/${selectedLevel.toLowerCase()}?limit=${questionCount}`);
         }
     };
@@ -124,13 +123,15 @@ export default function LevelGrid({user}: {user:User}){
                         <div className="flex flex-col gap-3">
                             <button
                                 onClick={handleStartBuild}
-                                className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-green-500 transition-colors"
+                                disabled={isLoad}
+                                className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-green-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                START SOLVING
+                                {isLoad ? 'LOADING...' : 'START SOLVING'}
                             </button>
                             <button
                                 onClick={() => setSelectedLevel(null)}
-                                className="w-full py-2 text-slate-400 font-bold hover:text-slate-900"
+                                disabled={isLoad}
+                                className="w-full py-2 text-slate-400 font-bold hover:text-slate-900 disabled:opacity-50"
                             >
                                 Cancel
                             </button>

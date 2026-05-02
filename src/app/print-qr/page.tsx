@@ -1,14 +1,27 @@
 'use client'
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function PrintQRs(){
     const blocks = Array.from({ length: 54 }, (_, i) => i + 1);
+    const [isLoad, setIsLoad] = useState(false);
+
+    const handlePrint = () => {
+      setIsLoad(true);
+      window.print();
+      window.setTimeout(() => setIsLoad(false), 500);
+    };
 
     return (
     <main suppressHydrationWarning className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
         <div className="print:hidden flex items-center">
-            <Link href="/" className="rounded-full">
+            <Link
+              href="/"
+              onClick={() => setIsLoad(true)}
+              aria-disabled={isLoad}
+              className="rounded-full aria-disabled:pointer-events-none aria-disabled:opacity-60"
+            >
                 <Image
                     className=""
                     src={"/back_arrow.svg"}
@@ -28,10 +41,11 @@ export default function PrintQRs(){
           Print this on sticker paper. Cut and attach to your Jenga blocks.
         </p>
         <button 
-          onClick={() => window.print()}
-          className="mt-6 px-10 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-[6px_6px_0_0_#3b82f6] hover:bg-blue-600 transition-all active:translate-y-1 active:shadow-none"
+          onClick={handlePrint}
+          disabled={isLoad}
+          className="mt-6 px-10 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-[6px_6px_0_0_#3b82f6] hover:bg-blue-600 transition-all active:translate-y-1 active:shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          PRINT STICKERS
+          {isLoad ? 'LOADING...' : 'PRINT STICKERS'}
         </button>
       </div>
 

@@ -1,11 +1,15 @@
 'use client';
 import { createNewFeedback } from "@/actions/feedback";
+import {useState} from "react";
 import {User} from "@prisma/client"
 
 type FeedbackUser = Pick<User, "id" | "name" | "email" | "image" | "role" | "isPro">
 
 export default function FeedbackForm({user, onSuccess}: {user:FeedbackUser, onSuccess?: ()=>void}){
+    const [isLoad, setIsLoad] = useState(false);
+    
     const handleSubmit = async(formData:FormData) =>{
+        setIsLoad(true);
         const result =await createNewFeedback(formData)
         if(result.success){
             alert("Feedback saved!");
@@ -13,7 +17,7 @@ export default function FeedbackForm({user, onSuccess}: {user:FeedbackUser, onSu
         } else {
             alert(result.error);
         }
-
+        setIsLoad(false);
     }
 
     return(
@@ -48,9 +52,10 @@ export default function FeedbackForm({user, onSuccess}: {user:FeedbackUser, onSu
 
                 <button
                     type="submit"
-                    className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
+                    disabled={isLoad}
+                    className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    SUBMIT REPORT
+                    {isLoad ? 'SUBMITTING...' : 'SUBMIT REPORT'}
                 </button>
 
             </form>

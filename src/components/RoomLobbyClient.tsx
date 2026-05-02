@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import StartGameButton from './ui/StartGameButton';
 
 type Participant = {
   id: string;
@@ -36,6 +37,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
   const router = useRouter();
   const [room, setRoom] = useState<RoomData>(initialRoom);
   const [loading, setLoading] = useState(false);
+  const [leaveLoading, setLeaveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
 
@@ -57,6 +59,17 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
 
         const data = await response.json();
         setRoom(data);
+
+        // Check if owner has left (not in participants list anymore)
+        const ownerStillInRoom = data.participants.some(
+          (p: Participant) => p.user.id === data.ownerId
+        );
+
+        if (!ownerStillInRoom) {
+          alert('The host has left the room.');
+          router.replace('/play/multi');
+          return;
+        }
       } catch {
         setError('Unable to refresh room status.');
       }
@@ -104,6 +117,29 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
     } catch {
       setError('Failed to close room.');
       setLoading(false);
+    }
+  };
+
+  const handleLeaveRoom = async () => {
+    const confirmLeave = window.confirm('Leave this room?');
+    if (!confirmLeave) return;
+
+    setLeaveLoading(true);
+    try {
+      const response = await fetch(`/api/rooms/${roomCode}/leave`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        setError('Failed to leave room.');
+        setLeaveLoading(false);
+        return;
+      }
+
+      router.replace('/play/multi');
+    } catch {
+      setError('Failed to leave room.');
+      setLeaveLoading(false);
     }
   };
 
@@ -156,6 +192,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
 
       {isHost && (
         <div className="w-full max-w-xs space-y-4">
+          <StartGameButton roomCode={room.joinCode} minPlayers={3} currentPlayers={room.participants.length} />
           <button
             onClick={handleCloseRoom}
             disabled={loading}
@@ -167,6 +204,16 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
             If the room is closed, all players will be returned to the lobby.
           </p>
         </div>
+      )}
+
+      {!isHost && (
+        <button
+          onClick={handleLeaveRoom}
+          disabled={leaveLoading}
+          className="mt-12 w-full max-w-xs py-5 bg-slate-600 text-white font-black text-2xl rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-1 active:shadow-none disabled:opacity-60"
+        >
+          {leaveLoading ? 'LEAVING...' : 'LEAVE ROOM'}
+        </button>
       )}
     </div>
   );

@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 export default function MultiplaySelector() {
     const router = useRouter();
     const [joinCode, setJoinCode] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [isLoad, setIsLoad] = useState(false);
+    const [isJoinLoad, setIsJoinLoad] = useState(false);
 
     const handleHost = async (level: string) => {
-        setLoading(true);
+        setIsLoad(true);
         const res = await fetch('/api/rooms/create', {
         method: 'POST',
         body: JSON.stringify({ level }),
@@ -20,6 +21,7 @@ export default function MultiplaySelector() {
 
     const handleJoin = async () => {
         if (joinCode.length === 6) {
+            setIsJoinLoad(true);
             const res = await fetch('/api/rooms/join', {
                 method: 'POST',
                 body: JSON.stringify({ joinCode: joinCode.toUpperCase() })
@@ -30,6 +32,7 @@ export default function MultiplaySelector() {
                 router.push(`/play/multi/${joinCode.toUpperCase()}`);
             } else {
                 alert("Room not found!");
+                setIsJoinLoad(false);
             }
         }
     };
@@ -44,9 +47,10 @@ export default function MultiplaySelector() {
                     <button
                     key={lvl}
                     onClick={() => handleHost(lvl)}
-                    className="py-3 px-1 border-2 border-slate-900 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-colors"
+                    disabled={isLoad}
+                    className="py-3 px-1 border-2 border-slate-900 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                    {lvl}
+                    {isLoad ? '...' : lvl}
                     </button>
                 ))}
                 </div>
@@ -69,10 +73,10 @@ export default function MultiplaySelector() {
                 />
                 <button
                 onClick={handleJoin}
-                disabled={joinCode.length !== 6}
-                className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl disabled:bg-gray-200"
+                disabled={joinCode.length !== 6 || isJoinLoad}
+                className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl disabled:bg-gray-200 disabled:opacity-60"
                 >
-                JOIN GAME
+                {isJoinLoad ? 'JOINING...' : 'JOIN GAME'}
                 </button>
             </div>
         </div>

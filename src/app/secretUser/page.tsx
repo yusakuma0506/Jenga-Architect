@@ -6,12 +6,14 @@ export default function SecretLoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoad, setIsLoad] = useState(false);
 
     const isValid = email.trim().length > 0 && password.trim().length > 0
 
     const handleSecretLogin = async (e: React.FormEvent) => {
         if(!isValid) {return}
         setError("")
+        setIsLoad(true);
 
         e.preventDefault();
         const result = await signIn("credentials", { 
@@ -22,6 +24,7 @@ export default function SecretLoginPage() {
 
         if(result?.error){
             setError("Email or Password is Incorrect")
+            setIsLoad(false);
         }else{
             window.location.href = "/"
         }
@@ -50,10 +53,10 @@ export default function SecretLoginPage() {
                     className="bg-slate-900 rounded-md border border-blue-800 p-2 outline-none focus:border-blue-300"
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button className={`${isValid? " bg-blue-900 hover:bg-blue-700": "bg-gray-800"} rounded-md text-white p-2 transition`}
-                    disabled={!isValid}
+                <button className={`${isValid && !isLoad ? " bg-blue-900 hover:bg-blue-700": "bg-gray-800"} rounded-md text-white p-2 transition disabled:opacity-60 disabled:cursor-not-allowed`}
+                    disabled={!isValid || isLoad}
                 >
-                    LOGIN
+                    {isLoad ? 'LOGGING IN...' : 'LOGIN'}
                 </button>
                 </form>
             </div>
