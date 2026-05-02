@@ -11,13 +11,13 @@ export default function ScanRedirect() {
     const roomCode = sessionStorage.getItem('activeRoomCode');
 
     if (!roomCode) {
-      // If they scanned without being in a room, send them back to Lobby
-      router.push('/play/multi?error=no_active_session');
+      // If they scanned without being in a room, send them home.
+      router.push('/');
       return;
     }
 
     // Send them to the specific quiz page inside their room
-    router.push(`/multi/${roomCode}/quiz/${blockId}`);
+    router.push(`/play/multi/${roomCode}/quiz/${blockId}`);
   }, [blockId, router]);
 
   return <div className="h-screen flex items-center justify-center font-bold">Connecting Block to Session...</div>;

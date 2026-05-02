@@ -48,7 +48,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
 
         if (response.status === 404) {
           alert('The room was closed by the host.');
-          router.replace('/play/multi');
+          router.replace('/');
           return;
         }
 
@@ -67,7 +67,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
 
         if (!ownerStillInRoom) {
           alert('The host has left the room.');
-          router.replace('/play/multi');
+          router.replace('/');
           return;
         }
       } catch {
@@ -113,7 +113,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
         return;
       }
 
-      router.replace('/play/multi');
+      router.replace('/');
     } catch {
       setError('Failed to close room.');
       setLoading(false);
@@ -136,7 +136,7 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
         return;
       }
 
-      router.replace('/play/multi');
+      router.replace('/');
     } catch {
       setError('Failed to leave room.');
       setLeaveLoading(false);
@@ -145,6 +145,16 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center p-6">
+      {!isHost && (
+        <button
+          onClick={handleLeaveRoom}
+          disabled={leaveLoading}
+          className="fixed left-4 top-4 z-50 px-4 py-3 bg-slate-600 text-white font-black text-sm rounded-2xl shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {leaveLoading ? 'LEAVING...' : 'LEAVE ROOM'}
+        </button>
+      )}
+
       <div className="mt-12 text-center">
         <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">Join Code</p>
         <h1 className="text-6xl font-black border-4 border-slate-900 px-6 py-2 rounded-2xl shadow-[6px_6px_0_0_#000] mb-10">
@@ -201,19 +211,9 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
             {loading ? 'CLOSING...' : 'CLOSE ROOM'}
           </button>
           <p className="text-center text-slate-500 text-xs">
-            If the room is closed, all players will be returned to the lobby.
+            If the room is closed, all players will be returned home.
           </p>
         </div>
-      )}
-
-      {!isHost && (
-        <button
-          onClick={handleLeaveRoom}
-          disabled={leaveLoading}
-          className="mt-12 w-full max-w-xs py-5 bg-slate-600 text-white font-black text-2xl rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-1 active:shadow-none disabled:opacity-60"
-        >
-          {leaveLoading ? 'LEAVING...' : 'LEAVE ROOM'}
-        </button>
       )}
     </div>
   );
