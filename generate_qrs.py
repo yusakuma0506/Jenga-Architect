@@ -10,7 +10,7 @@ if not os.path.exists(output_dir):
 
 # 2. THE PERMANENT URL 
 # This points to the 'scan' route we will create in Next.js
-base_url = "https://jenga-architect.vercel.app/multi/scan/"
+base_url = "https://jenga-architect.vercel.app/play/multi/scan/"
 
 print(f"Generating 54 QRs targeting: {base_url}")
 

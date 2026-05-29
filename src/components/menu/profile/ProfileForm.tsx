@@ -24,29 +24,45 @@ export default function ProfileForm({user}: {user:User}){
 
     const [name, setName] = useState(user.name || "")
     const [isLoad, setIsLoad] = useState(false)
+    const [isImageLoading, setIsImageLoading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [img, setImg] = useState(user.image  || "/default_photo.jpg")
     const handleImageClick = () =>{
+        if (isImageLoading) return;
         fileInputRef.current?.click();
     }
 
     const handleFileChange = async (e:React.ChangeEvent<HTMLInputElement>) =>{
         const file = e.target.files?.[0];
-        if(file){
-            setImg(URL.createObjectURL(file));
+        if(!file) return;
 
+        const previewUrl = URL.createObjectURL(file);
+        setImg(previewUrl);
+        setIsImageLoading(true);
+
+        try {
             const formData = new FormData();
             formData.append('file', file);
 
             const permanentUrl = await uploadToCloud(formData)
             const result = await updatePhoto(user.id, permanentUrl);
             if (result.success) {
-                await update({
-                    ...user,
-                    image:permanentUrl,
-                });
+                URL.revokeObjectURL(previewUrl);
+                setImg(permanentUrl);
+                await update({ image: permanentUrl });
                 router.refresh();
                 alert("Change Image");
+            } else {
+                setImg(user.image || "/default_photo.jpg");
+                alert("Failed to update image.");
+            }
+        } catch {
+            setImg(user.image || "/default_photo.jpg");
+            alert("Failed to upload image.");
+        } finally {
+            setIsImageLoading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
             }
         }
     }
@@ -56,10 +72,7 @@ export default function ProfileForm({user}: {user:User}){
         setIsLoad(true);
         const result = await updateUsername(user.id, name)
         if(result.success){
-            await update({
-                ...user,
-                name: name,
-            })
+            await update({ name });
             router.refresh();
             alert("Change Name")
         }
@@ -74,17 +87,26 @@ export default function ProfileForm({user}: {user:User}){
             <div className="flex flex-col items-center gap-2">
                 <div 
                     onClick={handleImageClick}
-                    className="rounded-xl shadow-sm p-0.5 relative w-20 h-20  border-2 border-blue-300 overflow-hidden cursor-pointer hover:border-blue-400 transition-all group bg-white"
+                    className={`rounded-xl shadow-sm p-0.5 relative w-20 h-20 border-2 border-blue-300 overflow-hidden transition-all group bg-white ${
+                        isImageLoading ? "cursor-wait opacity-80" : "cursor-pointer hover:border-blue-400"
+                    }`}
                 >
                     <Image
                     src={img} 
                     alt="Profile" 
                     fill
-                    className="w-full h-full object-cover group-hover:opacity-50 "
+                    className={`w-full h-full object-cover ${isImageLoading ? "opacity-60" : "group-hover:opacity-50"}`}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 text-[8px] text-black bg-black/40">
-                    Change Image
-                    </div>
+                    {isImageLoading ? (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white">
+                            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <span className="mt-1 text-[9px] font-bold uppercase tracking-wide">Loading</span>
+                        </div>
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 text-[8px] text-black bg-black/40">
+                            Change Image
+                        </div>
+                    )}
                 </div>
 
                 {/* Hidden Input */}
@@ -92,7 +114,8 @@ export default function ProfileForm({user}: {user:User}){
                     type="file" 
                     ref={fileInputRef} 
                     onChange={handleFileChange} 
-                    accept="image/*" 
+                    accept="image/*"
+                    disabled={isImageLoading}
                     className="hidden" 
                 />
                 </div>

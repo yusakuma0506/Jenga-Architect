@@ -1,56 +1,63 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
+import { verifyQuizAnswer } from '@/actions/quiz';
+import type { PublicQuiz } from '@/lib/quiz';
 
-interface QuizProps{
-    quiz:{
-        question: string;
-        options: string[];
-        answer: number[]
-    };
-    onNext: () => void;
-}
+type QuizEngineProps = {
+  quiz: PublicQuiz;
+  onCorrect: (selected: number[]) => void | Promise<void>;
+};
 
-export default function QuizEngine ({quiz, onNext}: QuizProps){
-    const [selected, setSelected] = useState<number[]>([]);
-    const [isLoad, setIsLoad] = useState(false);
-    const [shuffledOptions, setShuffledOptions] = useState<{id:number, text:string}[]>([]);
+export default function QuizEngine({ quiz, onCorrect }: QuizEngineProps) {
+  const [selected, setSelected] = useState<number[]>([]);
+  const [isLoad, setIsLoad] = useState(false);
+  const [shuffledOptions, setShuffledOptions] = useState<{ id: number; text: string }[]>([]);
 
-    useEffect(()=>{
-        const optionsWithId = quiz.options.map((text, index)=>({id: index, text: text}))
-        setShuffledOptions([...optionsWithId].sort(()=> Math.random()- 0.5));
+  useEffect(() => {
+    const optionsWithId = quiz.options.map((text, index) => ({ id: index, text }));
+    setShuffledOptions([...optionsWithId].sort(() => Math.random() - 0.5));
+  }, [quiz]);
 
-    },[quiz]);
+  const handleSelect = (id: number) => {
+    if (!selected.includes(id)) {
+      setSelected([...selected, id]);
+    }
+  };
 
-    const handleSelect = (id: number)=>{
-        if(!selected.includes(id)){
-            setSelected([...selected, id]);
-        }
-    };
+  const handleRemove = (id: number) => {
+    setSelected(selected.filter((item) => item !== id));
+  };
 
-    const handleRemove = (id: number) =>{
-        setSelected(selected.filter(item => item !== id))
+  const checkAnswer = async () => {
+    setIsLoad(true);
+
+    const result = await verifyQuizAnswer(quiz.id, selected);
+
+    if (result.error) {
+      alert(result.error);
+      setIsLoad(false);
+      return;
     }
 
-    const checkAnswer =() =>{
-        setIsLoad(true);
-        const isCorrect = JSON.stringify(selected) ===JSON.stringify(quiz.answer)
-        if(isCorrect){
-            alert("Correct");
-            onNext();
-        }else{
-            alert("Incorrect");
-            setSelected([]);
-            setIsLoad(false);
-        }
-    };
+    if (result.correct) {
+      alert('Correct');
+      await onCorrect(selected);
+    } else {
+      alert('Incorrect');
+      setSelected([]);
+      setIsLoad(false);
+    }
+  };
 
-    return (
+  return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto p-4">
       <h2 className="text-xl font-bold text-center mb-4">{quiz.question}</h2>
 
       <div className="min-h-[200px] p-4 border-2 border-dashed border-gray-300 rounded-xl flex flex-wrap gap-2 items-center justify-center bg-gray-50">
-        {selected.length === 0 && <span className="text-gray-400 text-sm">Make your answer here</span>}
+        {selected.length === 0 && (
+          <span className="text-gray-400 text-sm">Make your answer here</span>
+        )}
         {selected.map((id) => (
           <button
             key={id}
@@ -71,9 +78,10 @@ export default function QuizEngine ({quiz, onNext}: QuizProps){
               disabled={isSelected}
               onClick={() => handleSelect(opt.id)}
               className={`px-4 py-3 rounded-xl border-2 font-medium transition-all active:scale-95 
-                ${isSelected 
-                  ? 'bg-gray-200 border-gray-200 text-transparent' 
-                  : 'bg-white border-gray-300 shadow-sm hover:border-blue-400'
+                ${
+                  isSelected
+                    ? 'bg-gray-200 border-gray-200 text-transparent'
+                    : 'bg-white border-gray-300 shadow-sm hover:border-blue-400'
                 }`}
             >
               {opt.text}

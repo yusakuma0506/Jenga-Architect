@@ -1,32 +1,46 @@
-// src/app/play/multi/[roomCode]/page.tsx
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { notFound, redirect } from "next/navigation";
 import RoomLobbyClient from "@/components/RoomLobbyClient";
+import { getSessionUser } from "@/lib/user";
 
-export default async function RoomLobby({ params }: { params: Promise<{ roomCode: string }> }) {
-    const resolvedParams = await params;
-    const roomCode = resolvedParams.roomCode;
+export default async function RoomLobby({
+  params,
+}: {
+  params: Promise<{ roomCode: string }>;
+}) {
+  const { roomCode } = await params;
+  const session = await getSessionUser();
 
-    const room = await prisma.room.findUnique({
-        where: {
-            joinCode: roomCode,
-        },
-        include: {
-            participants: { include: { user: true } },
-            owner: true,
-        },
-    });
+  if (!session?.user?.id) {
+    redirect("/api/auth/signin");
+  }
 
-    if (!room) return <div className="p-10 font-black">Room not found!</div>;
+  const room = await prisma.room.findUnique({
+    where: { joinCode: roomCode },
+    include: {
+      participants: { include: { user: true } },
+      owner: true,
+    },
+  });
 
-    const session = await getServerSession();
-    const isHost = session?.user?.id === room.ownerId;
+  if (!room) return notFound();
 
-    return (
-        <RoomLobbyClient
-            roomCode={room.joinCode}
-            initialRoom={room}
-            isHost={Boolean(isHost)}
-        />
-    );
+  if (room.status === "PLAYING") {
+    redirect(`/play/multi/${roomCode}/board`);
+  }
+
+  const isParticipant = room.participants.some(
+    (p) => p.userId === session.user.id
+  );
+  if (!isParticipant) {
+    redirect("/");
+  }
+
+  return (
+    <RoomLobbyClient
+      roomCode={room.joinCode}
+      initialRoom={room}
+      isHost={session.user.id === room.ownerId}
+    />
+  );
 }

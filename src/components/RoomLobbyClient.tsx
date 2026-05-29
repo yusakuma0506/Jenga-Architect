@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useRoomPolling } from '@/hooks/useRoomPolling';
 import StartGameButton from './ui/StartGameButton';
 
 type Participant = {
@@ -39,51 +40,34 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
   const [loading, setLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const intervalRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    const fetchRoom = async () => {
-      try {
-        const response = await fetch(`/api/rooms/${roomCode}`, { cache: 'no-store' });
+  useRoomPolling<RoomData>({
+    roomCode,
+    intervalMs: 3000,
+    onData: (data) => {
+      setRoom(data);
+      setError(null);
 
-        if (response.status === 404) {
-          alert('The room was closed by the host.');
-          router.replace('/');
-          return;
-        }
-
-        if (!response.ok) {
-          setError('Unable to refresh room status.');
-          return;
-        }
-
-        const data = await response.json();
-        setRoom(data);
-
-        // Check if owner has left (not in participants list anymore)
-        const ownerStillInRoom = data.participants.some(
-          (p: Participant) => p.user.id === data.ownerId
-        );
-
-        if (!ownerStillInRoom) {
-          alert('The host has left the room.');
-          router.replace('/');
-          return;
-        }
-      } catch {
-        setError('Unable to refresh room status.');
+      if (data.status === 'PLAYING') {
+        router.replace(`/play/multi/${roomCode}/board`);
+        return;
       }
-    };
 
-    fetchRoom();
-    intervalRef.current = window.setInterval(fetchRoom, 3000);
-
-    return () => {
-      if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current);
+      const ownerStillInRoom = data.participants.some((p) => p.user.id === data.ownerId);
+      if (!ownerStillInRoom) {
+        alert('The host has left the room.');
+        router.replace('/');
       }
-    };
-  }, [roomCode, router]);
+    },
+    onError: (status) => {
+      if (status === 404) {
+        alert('The room was closed by the host.');
+        router.replace('/');
+        return;
+      }
+      setError('Unable to refresh room status.');
+    },
+  });
 
   useEffect(() => {
     if (!isHost) return;
@@ -97,50 +81,44 @@ export default function RoomLobbyClient({ roomCode, initialRoom, isHost }: RoomL
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [isHost]);
 
-  const handleCloseRoom = async () => {
+  const handleCloseRoom = () => {
     const confirmClose = window.confirm('Close this room for everyone and leave?');
     if (!confirmClose) return;
 
     setLoading(true);
-    try {
-      const response = await fetch(`/api/rooms/${roomCode}/close`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
+    fetch(`/api/rooms/${roomCode}/close`, { method: 'DELETE' })
+      .then((response) => {
+        if (!response.ok) {
+          setError('Failed to close room.');
+          setLoading(false);
+          return;
+        }
+        router.replace('/');
+      })
+      .catch(() => {
         setError('Failed to close room.');
         setLoading(false);
-        return;
-      }
-
-      router.replace('/');
-    } catch {
-      setError('Failed to close room.');
-      setLoading(false);
-    }
+      });
   };
 
-  const handleLeaveRoom = async () => {
+  const handleLeaveRoom = () => {
     const confirmLeave = window.confirm('Leave this room?');
     if (!confirmLeave) return;
 
     setLeaveLoading(true);
-    try {
-      const response = await fetch(`/api/rooms/${roomCode}/leave`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
+    fetch(`/api/rooms/${roomCode}/leave`, { method: 'POST' })
+      .then((response) => {
+        if (!response.ok) {
+          setError('Failed to leave room.');
+          setLeaveLoading(false);
+          return;
+        }
+        router.replace('/');
+      })
+      .catch(() => {
         setError('Failed to leave room.');
         setLeaveLoading(false);
-        return;
-      }
-
-      router.replace('/');
-    } catch {
-      setError('Failed to leave room.');
-      setLeaveLoading(false);
-    }
+      });
   };
 
   return (

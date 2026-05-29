@@ -1,0 +1,20 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const JengaTowerScene = dynamic(() => import('@/components/JengaTowerScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+});
+
+export default function JengaTower3D() {
+  return (
+    <div className="w-full h-full max-w-[360px] mx-auto">
+      <JengaTowerScene />
+    </div>
+  );
+}

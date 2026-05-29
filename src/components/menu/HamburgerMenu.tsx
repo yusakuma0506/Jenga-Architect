@@ -10,6 +10,7 @@ import DeleteForm from "./profile/delete/DeleteForm";
 import FeedbackForm from "./feedback/FeedbackForm";
 import { Role } from "@prisma/client";
 import Link from "next/link";
+import CancelSubscriptionForm from "./subscription/CancelSubscriptionForm";
 
 interface UserProps {
 
@@ -23,7 +24,7 @@ interface UserProps {
     };
 }
 
-type ModelType = "PROFILE" | "FEEDBACK" | "SUBSCRIPTION" | "DELETE" | null;
+type ModelType = "PROFILE" | "FEEDBACK" | "CANCEL_SUBSCRIPTION" | "DELETE" | null;
 
 
 export default function HamburgerMenu ({user}: UserProps){
@@ -58,6 +59,9 @@ export default function HamburgerMenu ({user}: UserProps){
             case "DELETE":
                 return <DeleteForm userId ={user.id}
                  onCancel ={() => setActiveModal(null)}/>
+
+            case "CANCEL_SUBSCRIPTION":
+                return <CancelSubscriptionForm onCancel={() => setActiveModal(null)} />
                 
             default: 
                 return null;
@@ -123,6 +127,32 @@ export default function HamburgerMenu ({user}: UserProps){
                                 isAdmin={user.role === "ADMIN"} 
                                 onOpen={()=> setActiveModal("FEEDBACK")} />
                         </div>
+
+                        {user.role !== "ADMIN" && (
+                            <Link
+                                href="/subscription"
+                                onClick={() => {
+                                    setLinkLoad("SUBSCRIPTION");
+                                    close();
+                                }}
+                                aria-disabled={linkLoad !== null || isLoad}
+                                className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold transition-all group aria-disabled:pointer-events-none aria-disabled:opacity-60"
+                            >
+                                <span className="text-indigo-400 group-hover:scale-110 transition-transform">💳</span>
+                                {linkLoad === "SUBSCRIPTION" ? "LOADING..." : "SUBSCRIPTION"}
+                            </Link>
+                        )}
+
+                        {user.role !== "ADMIN" && user.isPro && (
+                            <button
+                                onClick={() => setActiveModal("CANCEL_SUBSCRIPTION")}
+                                disabled={isLoad}
+                                className="flex items-center gap-3 px-3 py-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl text-sm font-bold transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <span className="text-rose-400 group-hover:scale-110 transition-transform">🧾</span>
+                                CANCEL SUBSCRIPTION
+                            </button>
+                        )}
 
                        
                        <Link 

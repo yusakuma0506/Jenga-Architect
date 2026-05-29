@@ -24,3 +24,145 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes jenga-swing {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+
+@keyframes jenga-swing-fragile {
+  0%,
+  100% {
+    transform: rotate(-2.5deg) translateX(-2px);
+  }
+  25% {
+    transform: rotate(1.5deg) translateX(1px);
+  }
+  50% {
+    transform: rotate(2.8deg) translateX(2px);
+  }
+  75% {
+    transform: rotate(-1deg) translateX(-1px);
+  }
+}
+
+.animate-jenga-swing {
+  animation: jenga-swing 4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-jenga-swing-fragile {
+  animation: jenga-swing-fragile 2.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes tower-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.5deg);
+  }
+}
+
+.animate-tower-float {
+  animation: tower-float 5s ease-in-out infinite;
+}
+
+@keyframes turn-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(251, 191, 36, 0.35), 6px 6px 0 0 #f59e0b;
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(251, 191, 36, 0.55), 6px 6px 0 0 #f59e0b;
+  }
+}
+
+.animate-turn-glow {
+  animation: turn-glow 2s ease-in-out infinite;
+}
+
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-2px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+@keyframes slide-wait {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-slide-wait {
+  animation: slide-wait 1.8s ease-in-out infinite;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

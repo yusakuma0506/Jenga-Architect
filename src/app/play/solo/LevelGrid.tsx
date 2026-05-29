@@ -1,16 +1,10 @@
-'use client'
-import {useRouter} from "next/navigation";
-import {useState} from "react";
+'use client';
 
-interface User{
-    name: string;
-    id: string; 
-    email: string; 
-    image: string; 
-    isPro: boolean; 
-}
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { AppUser } from '@/types/user';
 
-export default function LevelGrid({}: {user:User}){
+export default function LevelGrid({ user }: { user: AppUser }) {
     const router = useRouter();
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
     const [questionCount, setQuestionCount] = useState<number>(10);
@@ -62,7 +56,7 @@ export default function LevelGrid({}: {user:User}){
 
             <div className="max-w-5xl p-6 mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
                 {levels.map((level) => {
-                    // const isLocked = (level.id === "SENIOR" || level.id === "JUNIOR") && !user.isPro;
+                    const isLocked = (level.id === "SENIOR" || level.id === "JUNIOR") && !user.isPro;
 
                     return (
                         <div key={level.id} className="group relative">
@@ -77,19 +71,12 @@ export default function LevelGrid({}: {user:User}){
                                     <span className="text-slate-400 text-xs font-mono">Blocks {level.blocks}</span>
                                 </div>
 
-                                {/* <button
+                                <button
                                     onClick={() => !isLocked && setSelectedLevel(level.id)}
                                     className={`block w-full text-center mt-8 py-4 text-white font-black rounded-2xl transition-all    
                                         ${isLocked ? "bg-gray-400 cursor-not-allowed" : "bg-slate-900 hover:bg-blue-600 active:scale-95"}`}
                                 >
                                     {isLocked ? "🔒 PRO ONLY" : "🔓 START BUILD"}
-                                </button> */}
-                                <button
-                                    onClick={() => setSelectedLevel(level.id)}
-                                    className="block w-full text-center mt-8 py-4 text-white font-black rounded-2xl transition-all    
-                                         bg-slate-900 hover:bg-blue-600 active:scale-95"
-                                >
-                                     🔓 START BUILD
                                 </button>
                             </div>
                         </div>

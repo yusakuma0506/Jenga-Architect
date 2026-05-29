@@ -6,16 +6,18 @@ import { signOut } from 'next-auth/react';
 
 export default function DeleteForm({ userId, onCancel }: { userId: string, onCancel: () => void }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleDelete = async () => {
         if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
         
         setIsLoading(true);
+        setError("");
         const result = await deleteUserAccount(userId);
         if (result.success) {
-            signOut({ callbackUrl: "/" }); 
+            await signOut({ callbackUrl: "/" }); 
         } else {
-            alert("Error deleting account.");
+            setError(result.error ?? "Error deleting account.");
             setIsLoading(false);
         }
     };
@@ -28,10 +30,11 @@ export default function DeleteForm({ userId, onCancel }: { userId: string, onCan
             </div>
 
             <div className="flex flex-col gap-3">
+                {error && <p className="text-sm font-bold text-rose-600">{error}</p>}
                 <button
                     onClick={handleDelete}
                     disabled={isLoading}
-                    className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 disabled:bg-slate-300 transition-all"
+                    className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
                 >
                     {isLoading ? "Deleting..." : "YES, DELETE EVERYTHING"}
                 </button>

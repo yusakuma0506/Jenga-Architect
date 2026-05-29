@@ -24,6 +24,7 @@ model User {
   sessions         Session[]
   subscription     Subscription?
   scores           UserScore[]
+  quizAttempts     QuizAttempt[]
 }
 
 model JengaBlock {
@@ -49,6 +50,7 @@ model Quiz {
   block     JengaBlock  @relation(fields: [blockId], references: [id], onDelete: Cascade)
   rooms     Room[]
   attempts  UserScore[]
+  quizAttempts QuizAttempt[]
 }
 
 model Room {
@@ -59,21 +61,43 @@ model Room {
   maxPlayers   Int               @default(6)
   quizId       String?
   ownerId      String
+  currentTurnUserId String?
   createdAt    DateTime          @default(now())
   owner        User              @relation("RoomOwner", fields: [ownerId], references: [id])
   quiz         Quiz?             @relation(fields: [quizId], references: [id])
   participants RoomParticipant[]
+  scores       UserScore[]
+  quizAttempts QuizAttempt[]
 }
 
 model RoomParticipant {
-  id       String   @id @default(cuid())
-  roomId   String
-  userId   String
-  joinedAt DateTime @default(now())
-  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  roomId       String
+  userId       String
+  joinedAt     DateTime  @default(now())
+  totalScore   Int       @default(0)
+  isEliminated Boolean   @default(false)
+  eliminatedAt DateTime?
+  room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([roomId, userId])
+}
+
+model QuizAttempt {
+  id            String   @id @default(cuid())
+  roomId        String
+  userId        String
+  quizId        String
+  attemptNumber Int
+  isCorrect     Boolean
+  pointsChange  Int
+  createdAt     DateTime @default(now())
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId, quizId, attemptNumber])
 }
 
 model UserScore {
@@ -83,9 +107,13 @@ model UserScore {
   quizId    String
   timeSpent Int?
   userId    String
+  roomId    String?
   mode      GameMode @default(SOLO)
   quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room      Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, quizId, roomId])
 }
 
 model Subscription {

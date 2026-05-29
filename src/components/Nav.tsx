@@ -1,19 +1,10 @@
 'use client';
-import Image from "next/image";
-import HamburgerMenu from "./menu/HamburgerMenu";
 
-interface NavProps{
-    user: {
-        id: string;
-        name:string;
-        image: string;
-        isPro: boolean;
-        role:string;
-    }
-    
-}
+import Image from 'next/image';
+import HamburgerMenu from './menu/HamburgerMenu';
+import { AppUser } from '@/types/user';
 
-export default function Nav ({user}: NavProps){
+export default function Nav({ user }: { user: AppUser }) {
     const planLabel = user.isPro ? "Pro Plan": "Free Plan";
 
     const planStyles = user.isPro 
