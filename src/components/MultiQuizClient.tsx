@@ -36,6 +36,7 @@ export default function MultiQuizClient({
   const [attemptsUsed, setAttemptsUsed] = useState(initialUsed);
   const [totalScore, setTotalScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [isBackLoad, setIsBackLoad] = useState(false);
 
   const correctPoints = CORRECT_POINTS_BY_LEVEL[level];
 
@@ -128,13 +129,15 @@ export default function MultiQuizClient({
           <span className="text-gray-400 text-sm">Make your answer here</span>
         )}
         {selected.map((id) => (
-          <button
-            key={id}
-            onClick={() => handleRemove(id)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md active:scale-95 transition-transform"
-          >
-            {quiz.options[id]}
-          </button>
+            <button
+              key={id}
+              type="button"
+              disabled={isLoad}
+              onClick={() => handleRemove(id)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md active:scale-95 transition-transform disabled:opacity-60"
+            >
+              {quiz.options[id]}
+            </button>
         ))}
       </div>
 
@@ -144,6 +147,7 @@ export default function MultiQuizClient({
           return (
             <button
               key={opt.id}
+              type="button"
               disabled={isSelected || isLoad || attemptsRemaining <= 0}
               onClick={() => handleSelect(opt.id)}
               className={`px-4 py-3 rounded-xl border-2 font-medium transition-all active:scale-95 
@@ -160,6 +164,7 @@ export default function MultiQuizClient({
       </div>
 
       <button
+        type="button"
         onClick={checkAnswer}
         disabled={
           selected.length !== quiz.options.length ||
@@ -172,10 +177,15 @@ export default function MultiQuizClient({
       </button>
 
       <button
-        onClick={() => router.push(`/play/multi/${roomCode}/board`)}
-        className="text-sm font-bold text-slate-400 hover:text-slate-700"
+        type="button"
+        disabled={isBackLoad || isLoad}
+        onClick={() => {
+          setIsBackLoad(true);
+          router.push(`/play/multi/${roomCode}/board`);
+        }}
+        className="text-sm font-bold text-slate-400 hover:text-slate-700 disabled:opacity-60"
       >
-        ← Back to Board
+        {isBackLoad ? 'LOADING...' : '← Back to Board'}
       </button>
     </div>
   );

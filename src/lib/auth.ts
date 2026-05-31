@@ -39,11 +39,11 @@ const oauthProviders = [
   }),
 ];
 
-const debugCredentialsProvider =
-  process.env.NODE_ENV !== "production" && process.env.DEMO_PASSWORD
+const demoCredentialsProvider =
+  process.env.DEMO_PASSWORD
     ? [
         CredentialsProvider({
-          name: "debug",
+          name: "Admin / Demo",
           credentials: {
             email: { label: "Email", type: "text" },
             password: { label: "Password", type: "password" },
@@ -71,7 +71,7 @@ const debugCredentialsProvider =
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
-  providers: [...oauthProviders, ...debugCredentialsProvider],
+  providers: [...oauthProviders, ...demoCredentialsProvider],
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {

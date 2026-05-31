@@ -1,9 +1,11 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SecretLoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,8 +29,12 @@ export default function SecretLoginForm() {
     if (result?.error) {
       setError('Email or Password is Incorrect');
       setIsLoad(false);
+    } else if (result?.ok) {
+      router.push('/');
+      router.refresh();
     } else {
-      window.location.href = '/';
+      setError('Login failed. Please try again.');
+      setIsLoad(false);
     }
   };
 
@@ -53,6 +59,7 @@ export default function SecretLoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
+            type="submit"
             className={`${isValid && !isLoad ? 'bg-blue-900 hover:bg-blue-700' : 'bg-gray-800'} rounded-md text-white p-2 transition disabled:opacity-60 disabled:cursor-not-allowed`}
             disabled={!isValid || isLoad}
           >

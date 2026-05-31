@@ -4,7 +4,7 @@ import { getToken } from 'next-auth/jwt';
 
 const ADMIN_PATHS = ['/feedback', '/usersCheck'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAdminPath = ADMIN_PATHS.some(

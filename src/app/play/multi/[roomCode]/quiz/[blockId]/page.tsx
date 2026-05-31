@@ -1,10 +1,9 @@
-import { prisma } from '@/lib/prisma';
-import { notFound, redirect } from 'next/navigation';
-import { getSessionUser } from '@/lib/user';
-import { publicQuizSelect } from '@/lib/quiz';
-import { MAX_QUIZ_ATTEMPTS } from '@/lib/multiplayer-scoring';
-import { isPlayerTurn } from '@/lib/room-turn';
-import MultiQuizClient from '@/components/MultiQuizClient';
+import { prisma } from "@/lib/prisma";
+import MultiQuizClient from "@/components/MultiQuizClient";
+import { notFound, redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/user";
+import { publicQuizSelect } from "@/lib/quiz";
+import { MAX_QUIZ_ATTEMPTS } from "@/lib/multiplayer-scoring";
 
 export default async function MultiQuizPage({
   params,
@@ -15,9 +14,10 @@ export default async function MultiQuizPage({
   const session = await getSessionUser();
 
   if (!session?.user?.id) {
-    redirect('/api/auth/signin');
+    redirect("/api/auth/signin");
   }
 
+  // 1. Fetch Room to find the selected Level (ENTRY/JUNIOR/SENIOR)
   const room = await prisma.room.findUnique({
     where: { joinCode: roomCode },
     include: {
@@ -27,52 +27,44 @@ export default async function MultiQuizPage({
 
   if (!room) return notFound();
 
-  if (room.status !== 'PLAYING') {
+  if (room.status !== "PLAYING") {
     redirect(`/play/multi/${roomCode}`);
   }
 
   const participant = room.participants.find((p) => p.userId === session.user.id);
-  if (!participant) {
-    redirect('/');
-  }
-
-  if (participant.isEliminated) {
+  if (!participant || participant.isEliminated) {
     redirect(`/play/multi/${roomCode}/board`);
   }
 
-  const turnAllowed = await isPlayerTurn(room.id, session.user.id);
-  if (!turnAllowed) {
+  if (room.currentTurnUserId !== session.user.id) {
     redirect(`/play/multi/${roomCode}/board`);
   }
 
-  const solvedCount = await prisma.quizAttempt.count({
+  // 2. Determine SubIndex: Count scores for this block in this room
+  // This logic ensures that if BLOCK-01 is pulled twice, the 2nd pull gets subIndex 2.
+  const completedAttempts = await prisma.quizAttempt.count({
     where: {
       roomId: room.id,
-      isCorrect: true,
       quiz: { blockId },
+      OR: [{ isCorrect: true }, { attemptNumber: MAX_QUIZ_ATTEMPTS }],
     },
   });
 
-  const currentSubIndex = solvedCount + 1;
+  const currentSubIndex = completedAttempts + 1;
 
+  // 3. Fetch the Quiz
   const quizData = await prisma.quiz.findFirst({
     where: {
       blockId,
-      level: room.level,
+      level: room.level, // Uses the level chosen by the host
       subIndex: currentSubIndex,
     },
     select: publicQuizSelect,
   });
 
-  if (!quizData) {
-    return (
-      <div className="p-10 text-center font-bold">
-        No more questions for this block!
-      </div>
-    );
-  }
+  if (!quizData) return <div className="p-10 text-center">No more questions for this block!</div>;
 
-  const priorAttempts = await prisma.quizAttempt.findMany({
+  const attemptsUsed = await prisma.quizAttempt.count({
     where: {
       roomId: room.id,
       userId: session.user.id,
@@ -80,27 +72,20 @@ export default async function MultiQuizPage({
     },
   });
 
-  const alreadySolved = priorAttempts.some((a) => a.isCorrect);
-  if (alreadySolved) {
-    redirect(`/play/multi/${roomCode}/board`);
-  }
-
-  const attemptsUsed = priorAttempts.length;
-  const attemptsRemaining = Math.max(0, MAX_QUIZ_ATTEMPTS - attemptsUsed);
-
   return (
-    <div className="py-10 px-4">
-      <div className="text-center mb-6">
+    <div className="py-10">
+      <div className="text-center mb-8">
         <span className="bg-slate-900 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-          {room.level} · {blockId}
+          {room.level} Mode
         </span>
       </div>
+      
       <MultiQuizClient
-        quiz={quizData}
+        quiz={quizData} 
         roomCode={roomCode}
         level={room.level}
-        attemptsRemaining={attemptsRemaining}
         attemptsUsed={attemptsUsed}
+        attemptsRemaining={Math.max(0, MAX_QUIZ_ATTEMPTS - attemptsUsed)}
       />
     </div>
   );
