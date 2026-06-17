@@ -3,12 +3,25 @@ import Stripe from 'stripe';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { stripe, STRIPE_PRICE_IDS } from '@/lib/stripe';
+import { getStripeConfigStatus, stripe, STRIPE_PRICE_IDS } from '@/lib/stripe';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  return NextResponse.json(getStripeConfigStatus());
+}
 
 export async function POST(request: Request) {
   try {
     if (!stripe) {
-      return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: 'Stripe is not configured',
+          ...getStripeConfigStatus(),
+        },
+        { status: 500 }
+      );
     }
 
     const sessionUser = await getServerSession(authOptions);
