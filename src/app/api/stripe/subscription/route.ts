@@ -8,6 +8,39 @@ import { getStripeConfigStatus, stripe, STRIPE_PRICE_IDS } from '@/lib/stripe';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+function cleanBaseUrl(url?: string | null) {
+  return url?.trim().replace(/\/$/, '');
+}
+
+function isLocalUrl(url?: string | null) {
+  return Boolean(url && /\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(url));
+}
+
+function getRequestBaseUrl(request: Request) {
+  const origin = cleanBaseUrl(request.headers.get('origin'));
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'https';
+
+  if (origin) return origin;
+  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`;
+
+  return null;
+}
+
+function getCheckoutBaseUrl(request: Request) {
+  const configuredBaseUrl = cleanBaseUrl(process.env.NEXT_PUBLIC_BASE_URL);
+  if (configuredBaseUrl) return configuredBaseUrl;
+
+  const requestBaseUrl = getRequestBaseUrl(request);
+  const nextAuthUrl = cleanBaseUrl(process.env.NEXTAUTH_URL);
+
+  if (nextAuthUrl && (!isLocalUrl(nextAuthUrl) || isLocalUrl(requestBaseUrl))) {
+    return nextAuthUrl;
+  }
+
+  return requestBaseUrl ?? 'http://localhost:3000';
+}
+
 export async function GET() {
   return NextResponse.json(getStripeConfigStatus());
 }
@@ -65,10 +98,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ??
-      process.env.NEXTAUTH_URL ??
-      'http://localhost:3000';
+    const baseUrl = getCheckoutBaseUrl(request);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
