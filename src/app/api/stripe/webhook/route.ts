@@ -1,14 +1,38 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { syncSubscription } from '@/lib/subscription';
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+function getStripeWebhookConfig() {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const missing = [];
+
+  if (!stripe) missing.push('STRIPE_SECRET_KEY');
+  if (!webhookSecret) missing.push('STRIPE_WEBHOOK_SECRET');
+
+  return { webhookSecret, missing };
+}
+
+export async function GET() {
+  const { missing } = getStripeWebhookConfig();
+
+  return NextResponse.json({
+    configured: missing.length === 0,
+    missing,
+  });
+}
 
 export async function POST(request: Request) {
+  const { webhookSecret, missing } = getStripeWebhookConfig();
+
   if (!stripe || !webhookSecret) {
-    return NextResponse.json({ error: 'Stripe webhook is not configured' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Stripe webhook is not configured', missing },
+      { status: 500 }
+    );
   }
 
   const body = await request.text();
@@ -28,20 +52,26 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-      if (typeof session.subscription === 'string') {
-        const subscription = await stripe.subscriptions.retrieve(session.subscription);
-        await syncSubscription(subscription, session.client_reference_id);
-      }
-    }
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
 
-    if (
-      event.type === 'customer.subscription.created' ||
-      event.type === 'customer.subscription.updated' ||
-      event.type === 'customer.subscription.deleted'
-    ) {
-      await syncSubscription(event.data.object as Stripe.Subscription);
+        if (typeof session.subscription === 'string') {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription);
+          await syncSubscription(subscription, session.client_reference_id);
+        }
+
+        break;
+      }
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted':
+        await syncSubscription(event.data.object as Stripe.Subscription);
+        break;
+
+      default:
+        break;
     }
 
     return NextResponse.json({ received: true });
